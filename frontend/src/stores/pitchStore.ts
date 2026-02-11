@@ -23,6 +23,7 @@ interface PitchStore {
 
   startListening: () => Promise<void>;
   stopListening: () => void;
+  retryListening: () => Promise<void>;
   updatePitch: (data: PitchData) => void;
   clearPitch: () => void;
 }
@@ -41,6 +42,11 @@ export const usePitchStore = create<PitchStore>((set) => ({
 
   startListening: async () => {
     try {
+      // Stop and clean up old engine before creating new one (prevents double-engine leak)
+      if (engine) {
+        engine.stop();
+        engine = null;
+      }
       engine = new PitchDetectorEngine();
       const store = usePitchStore.getState();
       await engine.start(store.updatePitch);
@@ -52,7 +58,11 @@ export const usePitchStore = create<PitchStore>((set) => ({
 
   stopListening: () => {
     if (engine) {
-      engine.stop();
+      try {
+        engine.stop();
+      } catch {
+        // AudioContext.close can throw if already closed
+      }
       engine = null;
     }
     set({
@@ -64,6 +74,11 @@ export const usePitchStore = create<PitchStore>((set) => ({
       centOffset: 0,
       currentMidi: null,
     });
+  },
+
+  retryListening: async () => {
+    set({ error: null });
+    await usePitchStore.getState().startListening();
   },
 
   updatePitch: (data) =>

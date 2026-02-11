@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { fretMidX, stringY, DEGREE_COLORS } from '@/lib/music';
 import type { FretPosition } from '@/types';
 
@@ -13,9 +14,10 @@ interface NoteOverlayProps {
   showAllNotes?: boolean;
   allPositions?: Omit<FretPosition, 'interval' | 'degree' | 'isRoot'>[];
   hitDegrees?: Set<number>;
+  showFingers?: boolean;
 }
 
-export default function NoteOverlay({
+export default memo(function NoteOverlay({
   positions,
   nutX,
   scaleLength,
@@ -27,6 +29,7 @@ export default function NoteOverlay({
   showAllNotes = false,
   allPositions = [],
   hitDegrees,
+  showFingers = false,
 }: NoteOverlayProps) {
   return (
     <g>
@@ -119,11 +122,11 @@ export default function NoteOverlay({
               fontFamily="system-ui"
               pointerEvents="none"
             >
-              {pos.note}
+              {showFingers && pos.finger ? pos.finger : (pos.displayNote ?? pos.note)}
             </text>
           </g>
         );
       })}
     </g>
   );
-}
+})

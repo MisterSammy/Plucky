@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { usePage } from '@inertiajs/react';
 import { useScaleStore } from '@/stores/scaleStore';
+import { useAudioStore } from '@/stores/audioStore';
 import { usePracticeStore } from '@/stores/practiceStore';
 import AppLayout from '@/layouts/AppLayout';
 import Sidebar from '@/components/Sidebar';
@@ -17,8 +18,17 @@ interface Preselect {
     trackScaleId: string | null;
 }
 
+interface PlayerSettings {
+    preferences?: Record<string, unknown> | null;
+}
+
+interface Player {
+    settings?: PlayerSettings | null;
+}
+
 interface Props {
     preselect: Preselect;
+    player?: Player | null;
     [key: string]: unknown;
 }
 
@@ -42,6 +52,27 @@ function useThemeEffect() {
     }, [theme]);
 }
 
+function useHydratePreferences(player?: Player | null) {
+    const hydrated = useRef(false);
+
+    useEffect(() => {
+        // Clean up stale localStorage keys from pre-migration code
+        localStorage.removeItem('plucky-mode');
+        localStorage.removeItem('plucky-theme');
+        localStorage.removeItem('plucky-instrument');
+
+        if (hydrated.current) return;
+        const prefs = player?.settings?.preferences;
+        if (prefs) {
+            useScaleStore.getState().hydrateFromServer(prefs);
+            if (typeof prefs.playbackBpm === 'number') {
+                useAudioStore.setState({ playbackBpm: prefs.playbackBpm });
+            }
+            hydrated.current = true;
+        }
+    }, [player]);
+}
+
 function usePreselect(preselect: Preselect) {
     const applied = useRef(false);
     const { setScale, setRoot, setInstrument, instrument } = useScaleStore();
@@ -62,8 +93,10 @@ function usePreselect(preselect: Preselect) {
 }
 
 export default function PracticeIndex() {
+    const { preselect, player } = usePage<Props>().props;
+
+    useHydratePreferences(player);
     useThemeEffect();
-    const { preselect } = usePage<Props>().props;
     usePreselect(preselect);
 
     const { instrument } = useScaleStore();

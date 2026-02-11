@@ -2,6 +2,12 @@ import { PitchDetector } from 'pitchy';
 import { frequencyToNote } from '@/lib/music';
 import type { NoteName, NoteWithOctave } from '@/types';
 
+const MIN_CLARITY = 0.9;
+const MIN_FREQUENCY = 60;
+const MAX_FREQUENCY = 1400;
+const FFT_SIZE = 2048;
+const SMOOTHING = 0.8;
+
 export interface PitchData {
   frequency: number;
   clarity: number;
@@ -22,19 +28,19 @@ export class PitchDetectorEngine {
     this.audioContext = new AudioContext({ sampleRate: 44100 });
     const source = this.audioContext.createMediaStreamSource(this.stream);
     this.analyser = this.audioContext.createAnalyser();
-    this.analyser.fftSize = 2048;
-    this.analyser.smoothingTimeConstant = 0.8;
+    this.analyser.fftSize = FFT_SIZE;
+    this.analyser.smoothingTimeConstant = SMOOTHING;
     source.connect(this.analyser);
 
-    const buffer = new Float32Array(this.analyser.fftSize);
-    const detector = PitchDetector.forFloat32Array(this.analyser.fftSize);
+    const buffer = new Float32Array(FFT_SIZE);
+    const detector = PitchDetector.forFloat32Array(FFT_SIZE);
 
     const loop = () => {
       if (!this.analyser || !this.audioContext) return;
       this.analyser.getFloatTimeDomainData(buffer);
       const [frequency, clarity] = detector.findPitch(buffer, this.audioContext.sampleRate);
 
-      if (clarity > 0.9 && frequency > 60 && frequency < 1400) {
+      if (clarity > MIN_CLARITY && frequency > MIN_FREQUENCY && frequency < MAX_FREQUENCY) {
         const noteInfo = frequencyToNote(frequency);
         onPitch({
           frequency,

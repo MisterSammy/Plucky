@@ -1,11 +1,13 @@
 import { useScaleStore } from '@/stores/scaleStore';
 import { useFretboardPositions } from '@/hooks/useFretboardPositions';
 import { SCALE_BY_ID } from '@/data/scales';
+import { CHORD_BY_ID } from '@/data/chords';
 
 export default function ContentTitleBar() {
-  const { selectedRoot, selectedScaleId, selectedPosition, setSidebarOpen, instrument } = useScaleStore();
+  const { selectedRoot, selectedScaleId, selectedChordId, selectedPosition, setSidebarOpen, instrument, mode } = useScaleStore();
   const { availablePositions } = useFretboardPositions();
   const scale = SCALE_BY_ID[selectedScaleId];
+  const chord = CHORD_BY_ID[selectedChordId];
 
   let posLabel: string;
   if (instrument === 'piano') {
@@ -39,7 +41,7 @@ export default function ContentTitleBar() {
 
       <div className="min-w-0">
         <h1 className="text-lg font-semibold text-gray-100 truncate">
-          {selectedRoot} {scale?.name ?? 'Scale'}
+          {selectedRoot} {mode === 'chords' ? (chord?.name ?? 'Chord') : (scale?.name ?? 'Scale')}
         </h1>
         <p className="text-xs text-label">{posLabel}</p>
       </div>

@@ -2,15 +2,17 @@ import { useScaleStore } from '@/stores/scaleStore';
 import GenreFilter from './GenreFilter';
 import RootNoteSelector from './RootNoteSelector';
 import ScaleSelector from './ScaleSelector';
+import ChordSelector from './ChordSelector';
 import TuningSelector from './TuningSelector';
 import DisplayOptions from './DisplayOptions';
 import PositionSelector from './PositionSelector';
 import CustomTuningEditor from './CustomTuningEditor';
 import InstrumentSwitcher from './InstrumentSwitcher';
+import ModeSwitcher from './ModeSwitcher';
 import OctaveRangeSelector from './OctaveRangeSelector';
 
 export default function Sidebar() {
-  const { selectedTuningId, sidebarOpen, setSidebarOpen, instrument } = useScaleStore();
+  const { selectedTuningId, sidebarOpen, setSidebarOpen, instrument, mode } = useScaleStore();
 
   return (
     <>
@@ -36,9 +38,10 @@ export default function Sidebar() {
         {/* Scrollable controls */}
         <div className="flex-1 overflow-y-auto sidebar-scroll px-5 pb-6 space-y-5">
           <InstrumentSwitcher />
+          <ModeSwitcher />
           <GenreFilter />
           <RootNoteSelector />
-          <ScaleSelector />
+          {mode === 'chords' ? <ChordSelector /> : <ScaleSelector />}
           {instrument === 'guitar' && (
             <>
               <TuningSelector />
@@ -47,7 +50,14 @@ export default function Sidebar() {
           )}
           {instrument === 'piano' && <OctaveRangeSelector />}
           <DisplayOptions />
-          {instrument === 'guitar' && <PositionSelector />}
+          {(instrument === 'guitar' || mode === 'chords') && <PositionSelector />}
+
+          <button
+            onClick={() => useScaleStore.getState().resetAll()}
+            className="w-full mt-2 px-3 py-2 text-xs text-muted hover:text-white hover:bg-white/5 rounded-md transition-colors"
+          >
+            Reset All Settings
+          </button>
         </div>
       </aside>
     </>

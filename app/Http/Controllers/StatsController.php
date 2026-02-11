@@ -16,21 +16,31 @@ class StatsController extends Controller
             return redirect()->route('players.index');
         }
 
-        $sessions = $player->practiceSessions();
-        $completedSessions = (clone $sessions)->where('completed', true);
+        // Single aggregation query for all session stats
+        $stats = $player->practiceSessions()
+            ->selectRaw('
+                count(*) as total_sessions,
+                sum(case when completed then 1 else 0 end) as completed_sessions,
+                coalesce(sum(duration_ms), 0) as total_practice_time_ms,
+                count(distinct scale_id) as unique_scales_practiced,
+                count(distinct case when completed then scale_id else null end) as unique_scales_completed,
+                round(avg(case when completed then accuracy else null end), 1) as average_accuracy,
+                min(case when completed then duration_ms else null end) as fastest_session_ms
+            ')
+            ->first();
 
         return Inertia::render('Stats/Index', [
             'player' => $player,
             'stats' => [
-                'totalSessions' => $sessions->count(),
-                'completedSessions' => $completedSessions->count(),
-                'totalPracticeTimeMs' => (clone $sessions)->sum('duration_ms'),
-                'uniqueScalesPracticed' => (clone $sessions)->distinct('scale_id')->count('scale_id'),
-                'uniqueScalesCompleted' => (clone $completedSessions)->distinct('scale_id')->count('scale_id'),
+                'totalSessions' => (int) $stats->total_sessions,
+                'completedSessions' => (int) $stats->completed_sessions,
+                'totalPracticeTimeMs' => (int) $stats->total_practice_time_ms,
+                'uniqueScalesPracticed' => (int) $stats->unique_scales_practiced,
+                'uniqueScalesCompleted' => (int) $stats->unique_scales_completed,
                 'currentStreak' => $this->calculateStreak($player),
                 'longestStreak' => $this->calculateLongestStreak($player),
-                'averageAccuracy' => round((clone $completedSessions)->avg('accuracy') ?? 0, 1),
-                'fastestSessionMs' => (clone $completedSessions)->min('duration_ms'),
+                'averageAccuracy' => (float) ($stats->average_accuracy ?? 0),
+                'fastestSessionMs' => $stats->fastest_session_ms,
             ],
             'recentSessions' => $player->practiceSessions()
                 ->latest()

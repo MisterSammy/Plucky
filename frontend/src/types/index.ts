@@ -4,6 +4,27 @@ export type NoteWithOctave = `${NoteName}${number}`;
 
 export type Instrument = 'guitar' | 'piano';
 
+export type Mode = 'scales' | 'chords';
+
+export type NoteRangeMode = 'all' | 'fromRoot' | 'rootToRoot';
+
+export type PracticeDirection = 'ascending' | 'descending';
+
+export type ChordCategory =
+  | 'major' | 'minor' | 'dominant' | 'suspended'
+  | 'diminished' | 'augmented' | 'altered';
+
+export interface ChordDefinition {
+  id: string;
+  name: string;
+  symbol: string;
+  intervals: string[];
+  degrees: string[];
+  category: ChordCategory;
+  description: string;
+  tonalName: string;
+}
+
 export interface PianoKeyPosition {
   midi: number;
   note: NoteName;
@@ -26,6 +47,14 @@ export interface FretPosition {
   interval: string;
   degree: number;
   isRoot: boolean;
+  finger?: number;
+  displayNote?: string;
+}
+
+export interface ChordDiagram {
+  mutedStrings: number[];
+  openStrings: number[];
+  barres: { fret: number; fromString: number; toString: number }[];
 }
 
 export type ScaleCategory =
@@ -54,6 +83,7 @@ export interface GenreCollection {
   name: string;
   description: string;
   scaleIds: string[];
+  chordIds: string[];
   suggestedTunings: string[];
   tips: string[];
   color: string;

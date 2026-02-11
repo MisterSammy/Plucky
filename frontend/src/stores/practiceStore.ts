@@ -3,13 +3,15 @@ import type { NoteName } from '@/types';
 
 interface PracticeStore {
     expectedNotes: NoteName[];
+    expectedDegrees: number[];
+    displayNotes: string[];
     currentStep: number;
     hitNotes: boolean[];
     isActive: boolean;
     trackScaleId: number | null;
     startedAt: number | null;
 
-    startPractice: (notes: NoteName[]) => void;
+    startPractice: (notes: NoteName[], degrees: number[], displayNotes: string[]) => void;
     checkNote: (note: NoteName) => boolean;
     reset: () => void;
     setTrackScaleId: (id: number | null) => void;
@@ -17,14 +19,18 @@ interface PracticeStore {
 
 export const usePracticeStore = create<PracticeStore>((set, get) => ({
     expectedNotes: [],
+    expectedDegrees: [],
+    displayNotes: [],
     currentStep: 0,
     hitNotes: [],
     isActive: false,
     trackScaleId: null,
     startedAt: null,
 
-    startPractice: (notes) => set({
+    startPractice: (notes, degrees, displayNotes) => set({
         expectedNotes: notes,
+        expectedDegrees: degrees,
+        displayNotes,
         currentStep: 0,
         hitNotes: new Array(notes.length).fill(false),
         isActive: true,
@@ -35,20 +41,20 @@ export const usePracticeStore = create<PracticeStore>((set, get) => ({
         const { expectedNotes, currentStep, hitNotes, isActive } = get();
         if (!isActive || expectedNotes.length === 0) return false;
 
-        // Restart: playing root when past step 0 (including after completion)
-        if (currentStep > 0 && note === expectedNotes[0]) {
-            set({
-                currentStep: 1,
-                hitNotes: expectedNotes.map((_, i) => i === 0),
-                startedAt: Date.now(),
-            });
-            return true;
+        // After completion, restart when the first note is played again
+        if (currentStep >= expectedNotes.length) {
+            if (note === expectedNotes[0]) {
+                set({
+                    currentStep: 1,
+                    hitNotes: expectedNotes.map((_, i) => i === 0),
+                    startedAt: Date.now(),
+                });
+                return true;
+            }
+            return false;
         }
 
-        // Practice complete, only restart via root above
-        if (currentStep >= expectedNotes.length) return false;
-
-        // Check if detected note matches expected next note
+        // Normal advance — check if detected note matches expected next note
         if (note === expectedNotes[currentStep]) {
             const newHitNotes = [...hitNotes];
             newHitNotes[currentStep] = true;
@@ -59,11 +65,23 @@ export const usePracticeStore = create<PracticeStore>((set, get) => ({
             return true;
         }
 
+        // Mid-sequence restart — playing root resets to beginning
+        if (currentStep > 0 && note === expectedNotes[0]) {
+            set({
+                currentStep: 1,
+                hitNotes: expectedNotes.map((_, i) => i === 0),
+                startedAt: Date.now(),
+            });
+            return true;
+        }
+
         return false;
     },
 
     reset: () => set({
         expectedNotes: [],
+        expectedDegrees: [],
+        displayNotes: [],
         currentStep: 0,
         hitNotes: [],
         isActive: false,

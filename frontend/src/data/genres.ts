@@ -6,6 +6,7 @@ export const GENRES: GenreCollection[] = [
     name: 'Midwest Emo',
     description: 'Twinkly, emotional guitar work with open strings and unconventional tunings.',
     scaleIds: ['major', 'natural-minor', 'major-pentatonic', 'minor-pentatonic', 'dorian', 'lydian', 'mixolydian', 'kumoi'],
+    chordIds: ['major', 'minor', 'maj7', 'm7', 'add9', 'sus2', 'sus4', '6/9', '7'],
     suggestedTunings: ['standard', 'dadgad', 'open-g'],
     tips: [
       'Use open strings and let notes ring together for that twinkly sound',
@@ -20,6 +21,7 @@ export const GENRES: GenreCollection[] = [
     name: 'Metal',
     description: 'Heavy, aggressive scales with dark intervals and powerful low-end riffs.',
     scaleIds: ['natural-minor', 'harmonic-minor', 'phrygian', 'phrygian-dominant', 'locrian', 'diminished-hw', 'chromatic', 'hungarian-minor', 'double-harmonic-major', 'persian', 'iwato'],
+    chordIds: ['major', 'minor', 'dim', 'dim7', 'aug', 'sus4', '7'],
     suggestedTunings: ['drop-d', 'drop-cs', 'standard'],
     tips: [
       'Palm-muted chugs on the low string follow the root notes of the scale',
@@ -34,6 +36,7 @@ export const GENRES: GenreCollection[] = [
     name: 'Blues',
     description: 'Expressive, soulful playing with bends, slides, and the iconic blue note.',
     scaleIds: ['blues', 'minor-pentatonic', 'major-pentatonic', 'major-blues', 'mixolydian', 'dorian', 'bebop-minor'],
+    chordIds: ['7', '9', '7sharp9', 'minor', 'm7', '6', 'major'],
     suggestedTunings: ['standard', 'open-g', 'open-d', 'eb-standard'],
     tips: [
       'Bend the minor 3rd up toward the major 3rd for the classic blues sound',
@@ -48,6 +51,7 @@ export const GENRES: GenreCollection[] = [
     name: 'Jazz',
     description: 'Sophisticated harmony with extended scales, chromaticism, and voice leading.',
     scaleIds: ['major', 'dorian', 'mixolydian', 'lydian', 'melodic-minor', 'bebop-dominant', 'altered', 'lydian-dominant', 'whole-tone', 'diminished-hw', 'half-whole-diminished', 'bebop-major', 'bebop-minor', 'locrian-natural2', 'lydian-augmented', 'dorian-b2', 'augmented'],
+    chordIds: ['maj7', 'maj9', 'maj13', 'm7', 'm9', 'm11', '7', '9', '13', '6/9', 'dim7', 'm7b5', 'alt', '7sharp11', '7b9', '7sharp9'],
     suggestedTunings: ['standard'],
     tips: [
       'Bebop scales add a chromatic passing tone for smooth eighth-note lines',
@@ -62,6 +66,7 @@ export const GENRES: GenreCollection[] = [
     name: 'Country / Folk',
     description: 'Open-string melodies, chicken pickin\', and fingerstyle patterns.',
     scaleIds: ['major', 'major-pentatonic', 'minor-pentatonic', 'mixolydian', 'blues', 'dorian', 'harmonic-major'],
+    chordIds: ['major', 'minor', '7', 'sus4', 'add9', '6'],
     suggestedTunings: ['standard', 'drop-d', 'dadgad', 'open-g', 'open-d'],
     tips: [
       'Hybrid picking (pick + fingers) brings out scale runs on non-adjacent strings',
@@ -76,6 +81,7 @@ export const GENRES: GenreCollection[] = [
     name: 'Rock / Classic Rock',
     description: 'Power chords, driving riffs, and iconic pentatonic soloing.',
     scaleIds: ['minor-pentatonic', 'blues', 'mixolydian', 'major-pentatonic'],
+    chordIds: ['major', 'minor', '7', 'sus4', 'sus2', 'aug'],
     suggestedTunings: ['standard', 'eb-standard', 'drop-d'],
     tips: [
       'Minor pentatonic box 1 is the foundation of most classic rock solos',
@@ -90,6 +96,7 @@ export const GENRES: GenreCollection[] = [
     name: 'Funk / R&B / Soul',
     description: 'Groove-driven playing with rhythmic precision and soulful note choices.',
     scaleIds: ['dorian', 'minor-pentatonic', 'mixolydian', 'bebop-dominant'],
+    chordIds: ['m7', 'm9', '9', '7', '13', 'maj7', 'm11'],
     suggestedTunings: ['standard', 'eb-standard'],
     tips: [
       'Dorian is the go-to funk scale \u2014 the natural 6th keeps it bright over minor grooves',
@@ -104,6 +111,7 @@ export const GENRES: GenreCollection[] = [
     name: 'Classical',
     description: 'Formal Western harmony with refined voice leading and counterpoint.',
     scaleIds: ['major', 'harmonic-minor', 'melodic-minor', 'neapolitan-major'],
+    chordIds: ['major', 'minor', 'dim', 'aug', 'maj7', 'm7', 'dim7'],
     suggestedTunings: ['standard'],
     tips: [
       'Harmonic minor is the backbone of classical cadences (V\u2013i resolution)',
@@ -118,6 +126,7 @@ export const GENRES: GenreCollection[] = [
     name: 'Flamenco / Latin',
     description: 'Passionate, rhythmic playing rooted in Spanish and Latin American traditions.',
     scaleIds: ['phrygian', 'phrygian-dominant', 'flamenco', 'double-harmonic-major'],
+    chordIds: ['major', 'minor', '7', 'dim', 'sus4', 'aug'],
     suggestedTunings: ['standard', 'drop-d', 'dadgad'],
     tips: [
       'Phrygian dominant is the defining flamenco sound \u2014 emphasize the \u266D2 to 3 resolution',
@@ -132,6 +141,7 @@ export const GENRES: GenreCollection[] = [
     name: 'Progressive / Math Rock',
     description: 'Complex, angular playing with odd meters, tapping, and unusual scales.',
     scaleIds: ['lydian', 'whole-tone', 'hirajoshi', 'lydian-augmented'],
+    chordIds: ['maj7', 'maj7sharp5', 'aug', 'sus2', 'add9', '7sharp11'],
     suggestedTunings: ['standard', 'dadgad', 'drop-d'],
     tips: [
       'Lydian\'s \u266F4 creates a floating, otherworldly quality perfect for prog',
@@ -146,6 +156,7 @@ export const GENRES: GenreCollection[] = [
     name: 'Indie / Alternative',
     description: 'Melodic, textural playing that blends major and minor colors.',
     scaleIds: ['major', 'dorian', 'major-pentatonic', 'harmonic-major'],
+    chordIds: ['major', 'minor', 'maj7', 'm7', 'sus2', 'sus4', 'add9'],
     suggestedTunings: ['standard', 'dadgad', 'open-g'],
     tips: [
       'Dorian over minor progressions gives a bittersweet, indie feel',
@@ -160,6 +171,7 @@ export const GENRES: GenreCollection[] = [
     name: 'Gospel / Neo-Soul',
     description: 'Rich harmonic movement with chromatic voice leading and extended chords.',
     scaleIds: ['major', 'dorian', 'bebop-dominant', 'melodic-minor'],
+    chordIds: ['maj7', 'maj9', 'm7', 'm9', '7', '9', '13', 'dim7', 'mMaj7', '6/9'],
     suggestedTunings: ['standard', 'eb-standard'],
     tips: [
       'Major scale runs with chromatic approach notes define the gospel sound',

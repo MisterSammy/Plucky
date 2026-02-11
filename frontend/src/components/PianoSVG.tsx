@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react';
 import { DEGREE_COLORS } from '@/lib/music';
 import {
     WHITE_KEY_WIDTH,
@@ -23,7 +24,7 @@ interface PianoSVGProps {
     endOctave: number;
 }
 
-export default function PianoSVG({
+export default memo(function PianoSVG({
     positions,
     allKeys,
     onNoteClick,
@@ -40,10 +41,13 @@ export default function PianoSVG({
     const height = WHITE_KEY_HEIGHT + PIANO_TOP_PADDING + 30;
     const startMidi = allKeys.length > 0 ? allKeys[0].midi : 0;
 
-    const positionByMidi = new Map<number, PianoKeyPosition>();
-    for (const pos of positions) {
-        positionByMidi.set(pos.midi, pos);
-    }
+    const positionByMidi = useMemo(() => {
+        const map = new Map<number, PianoKeyPosition>();
+        for (const pos of positions) {
+            map.set(pos.midi, pos);
+        }
+        return map;
+    }, [positions]);
 
     const whiteKeys = allKeys.filter(k => !k.isBlackKey);
     const blackKeys = allKeys.filter(k => k.isBlackKey);
@@ -275,4 +279,4 @@ export default function PianoSVG({
             })}
         </svg>
     );
-}
+})

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Player;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class PlayerController extends Controller
@@ -32,8 +33,10 @@ class PlayerController extends Controller
 
     public function activate(Player $player)
     {
-        Player::where('is_active', true)->update(['is_active' => false]);
-        $player->update(['is_active' => true]);
+        DB::transaction(function () use ($player) {
+            Player::where('is_active', true)->update(['is_active' => false]);
+            $player->update(['is_active' => true]);
+        });
 
         return redirect()->route('practice');
     }

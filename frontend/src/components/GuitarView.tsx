@@ -12,10 +12,10 @@ import ScaleInfo from '@/components/ScaleInfo';
 import type { FretPosition } from '@/types';
 
 export default function GuitarView() {
-    const { selectedRoot, selectedScaleId, showAllNotes, highlightRoot } = useScaleStore();
+    const { selectedRoot, selectedScaleId, showAllNotes, highlightRoot, showFingers } = useScaleStore();
     const { currentNoteIndex } = useAudioStore();
     const { isListening, currentNote, currentNoteWithOctave } = usePitchStore();
-    const { filteredPositions, tuning, allPositions, activePositionRange } = useFretboardPositions();
+    const { filteredPositions, tuning, allPositions, activePositionRange, chordDiagram } = useFretboardPositions();
     const hitDegrees = useScalePractice(filteredPositions, isListening, currentNote);
     const scale = SCALE_BY_ID[selectedScaleId];
 
@@ -40,6 +40,8 @@ export default function GuitarView() {
                     rootName={selectedRoot}
                     activePositionRange={activePositionRange}
                     hitDegrees={hitDegrees}
+                    chordDiagram={chordDiagram}
+                    showFingers={showFingers}
                 />
                 <FretboardLegend />
             </FretboardContainer>

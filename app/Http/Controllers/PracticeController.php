@@ -13,16 +13,22 @@ class PracticeController extends Controller
     {
         $player = Player::where('is_active', true)->first();
 
+        if (! $player) {
+            if (Player::count() === 1) {
+                $player = Player::first();
+                $player->update(['is_active' => true]);
+            } else {
+                return redirect()->route('players.index');
+            }
+        }
+
         return Inertia::render('Practice/Index', [
-            'player' => $player?->load('settings'),
-            'recentSessions' => $player
-                ? $player->practiceSessions()
-                    ->where('completed', true)
-                    ->latest()
-                    ->take(5)
-                    ->get()
-                : [],
-            // Pre-selected scale from learning track navigation
+            'player' => $player->load('settings'),
+            'recentSessions' => $player->practiceSessions()
+                ->where('completed', true)
+                ->latest()
+                ->take(5)
+                ->get(),
             'preselect' => [
                 'scaleId' => $request->query('scaleId'),
                 'root' => $request->query('root'),
@@ -45,7 +51,11 @@ class PracticeController extends Controller
             'track_scale_id' => 'nullable|integer|exists:track_scales,id',
         ]);
 
-        $player = Player::where('is_active', true)->firstOrFail();
+        $player = Player::where('is_active', true)->first();
+
+        if (! $player) {
+            return redirect()->route('practice');
+        }
 
         $accuracy = ($validated['total_notes'] > 0)
             ? round(($validated['notes_hit'] / $validated['total_notes']) * 100, 2)
@@ -77,7 +87,27 @@ class PracticeController extends Controller
             }
         }
 
-        return back();
+        return redirect()->route('practice');
+    }
+
+    public function savePreferences(Request $request)
+    {
+        $request->validate([
+            'preferences' => 'required|array',
+        ]);
+
+        $player = Player::where('is_active', true)->first();
+
+        if (! $player) {
+            return response()->json(['error' => 'no_player'], 404);
+        }
+
+        $player->settings()->updateOrCreate(
+            ['player_id' => $player->id],
+            ['preferences' => $request->input('preferences')]
+        );
+
+        return response()->json(['ok' => true]);
     }
 
     public function updateSettings(Request $request)

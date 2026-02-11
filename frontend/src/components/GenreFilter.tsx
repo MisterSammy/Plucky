@@ -2,7 +2,7 @@ import { useScaleStore } from '@/stores/scaleStore';
 import { GENRES } from '@/data/genres';
 
 export default function GenreFilter() {
-  const { selectedGenreId, setGenre } = useScaleStore();
+  const { selectedGenreId, setGenre, mode } = useScaleStore();
 
   return (
     <div>
@@ -17,7 +17,7 @@ export default function GenreFilter() {
           }`}
           aria-pressed={selectedGenreId === null}
         >
-          All Scales
+          {mode === 'chords' ? 'All Chords' : 'All Scales'}
         </button>
         {GENRES.map((genre) => {
           const isActive = selectedGenreId === genre.id;

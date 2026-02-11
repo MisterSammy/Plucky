@@ -14,8 +14,8 @@ export default function PianoView() {
     const { showAllNotes, highlightRoot, pianoStartOctave, pianoEndOctave } = useScaleStore();
     const { currentNoteIndex } = useAudioStore();
     const { isListening, currentNote, currentNoteWithOctave } = usePitchStore();
-    const { positions, allKeys } = usePianoPositions();
-    const hitDegrees = useScalePractice(positions, isListening, currentNote);
+    const { filteredPositions, allKeys } = usePianoPositions();
+    const hitDegrees = useScalePractice(filteredPositions, isListening, currentNote);
 
     const handleNoteClick = useCallback(async (position: PianoKeyPosition) => {
         const { playNote } = useAudioStore.getState();
@@ -26,7 +26,7 @@ export default function PianoView() {
         <div className="flex-1 px-6 py-6 space-y-6 overflow-y-auto">
             <FretboardContainer>
                 <PianoSVG
-                    positions={positions}
+                    positions={filteredPositions}
                     allKeys={allKeys}
                     onNoteClick={handleNoteClick}
                     activeNoteIndex={currentNoteIndex}

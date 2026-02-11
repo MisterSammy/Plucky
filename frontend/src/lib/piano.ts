@@ -1,7 +1,6 @@
-import { Note, Scale, Interval } from 'tonal';
+import { Note, Scale, Chord, Interval } from 'tonal';
+import { normalizeToSharp, CHROMATIC_SHARPS } from '@/lib/noteUtils';
 import type { NoteName, NoteWithOctave, PianoKeyPosition } from '@/types';
-
-const CHROMATIC_SHARPS: NoteName[] = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
 const BLACK_KEY_NOTES = new Set<NoteName>(['C#', 'D#', 'F#', 'G#', 'A#']);
 
@@ -13,18 +12,6 @@ export const PIANO_TOP_PADDING = 20;
 
 export function isBlackKey(note: NoteName): boolean {
     return BLACK_KEY_NOTES.has(note);
-}
-
-function normalizeToSharp(noteName: string): NoteName {
-    const simplified = Note.simplify(noteName);
-    const enharmonic = Note.enharmonic(simplified);
-    const pc = Note.pitchClass(simplified);
-    if (CHROMATIC_SHARPS.includes(pc as NoteName)) return pc as NoteName;
-    const enPc = Note.pitchClass(enharmonic);
-    if (CHROMATIC_SHARPS.includes(enPc as NoteName)) return enPc as NoteName;
-    const midi = Note.midi(noteName);
-    if (midi !== null) return CHROMATIC_SHARPS[midi % 12];
-    return pc as NoteName;
 }
 
 export function getAllPianoKeys(startOctave: number, endOctave: number): {
@@ -82,6 +69,42 @@ export function getPianoScalePositions(
         if (noteIdx === -1) continue;
 
         const interval = Interval.distance(root, key.note) || scaleData.intervals[noteIdx] || '1P';
+        const degree = noteIdx + 1;
+
+        result.push({
+            midi: key.midi,
+            note: key.note,
+            noteWithOctave: key.noteWithOctave,
+            frequency: key.frequency,
+            interval,
+            degree,
+            isRoot: key.note === root,
+            isBlackKey: key.isBlackKey,
+            octave: key.octave,
+        });
+    }
+
+    return result;
+}
+
+export function getPianoChordPositions(
+    root: NoteName,
+    chordTonalName: string,
+    startOctave: number,
+    endOctave: number
+): PianoKeyPosition[] {
+    const chordData = Chord.get(`${root} ${chordTonalName}`);
+    if (!chordData.notes.length) return [];
+
+    const chordNotes = chordData.notes.map(normalizeToSharp);
+    const allKeys = getAllPianoKeys(startOctave, endOctave);
+    const result: PianoKeyPosition[] = [];
+
+    for (const key of allKeys) {
+        const noteIdx = chordNotes.indexOf(key.note);
+        if (noteIdx === -1) continue;
+
+        const interval = Interval.distance(root, key.note) || chordData.intervals[noteIdx] || '1P';
         const degree = noteIdx + 1;
 
         result.push({

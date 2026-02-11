@@ -20,6 +20,7 @@ Route::post('/sessions', [PracticeController::class, 'store'])->name('sessions.s
 
 // Settings
 Route::patch('/settings', [PracticeController::class, 'updateSettings'])->name('settings.update');
+Route::put('/preferences', [PracticeController::class, 'savePreferences'])->name('preferences.save');
 
 // Stats dashboard
 Route::get('/stats', [StatsController::class, 'index'])->name('stats');

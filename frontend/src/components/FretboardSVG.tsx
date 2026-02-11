@@ -1,7 +1,8 @@
 import FretboardBackground from './FretboardBackground';
 import NoteOverlay from './NoteOverlay';
+import ChordDiagramOverlay from './ChordDiagramOverlay';
 import PitchIndicator from './PitchIndicator';
-import type { FretPosition, NoteWithOctave, PositionRange } from '@/types';
+import type { FretPosition, NoteWithOctave, PositionRange, ChordDiagram } from '@/types';
 
 const WIDTH = 1200;
 const HEIGHT = 200;
@@ -25,9 +26,13 @@ interface FretboardSVGProps {
   rootName?: string;
   activePositionRange?: PositionRange | null;
   hitDegrees?: Set<number>;
+  chordDiagram?: ChordDiagram | null;
+  showFingers?: boolean;
 }
 
-export default function FretboardSVG({
+import { memo } from 'react';
+
+export default memo(function FretboardSVG({
   positions,
   tuningNotes,
   onNoteClick,
@@ -40,6 +45,8 @@ export default function FretboardSVG({
   rootName,
   activePositionRange,
   hitDegrees,
+  chordDiagram,
+  showFingers = false,
 }: FretboardSVGProps) {
   return (
     <svg
@@ -72,7 +79,17 @@ export default function FretboardSVG({
         showAllNotes={showAllNotes}
         allPositions={allPositions}
         hitDegrees={hitDegrees}
+        showFingers={showFingers}
       />
+      {chordDiagram && (
+        <ChordDiagramOverlay
+          diagram={chordDiagram}
+          nutX={NUT_X}
+          scaleLength={SCALE_LENGTH}
+          topPadding={TOP_PADDING}
+          stringSpacing={STRING_SPACING}
+        />
+      )}
       {detectedNoteWithOctave && (
         <PitchIndicator
           detectedNoteWithOctave={detectedNoteWithOctave}
@@ -85,4 +102,4 @@ export default function FretboardSVG({
       )}
     </svg>
   );
-}
+})
