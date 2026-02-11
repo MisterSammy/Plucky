@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-fretboard-wood: #8B4513;
+  --color-fretboard-wood-dark: #3E1F0D;
+  --color-sidebar: #1e1e2e;
+  --color-content: #13131f;
+  --color-surface: #252538;
+  --color-accent: #f59e0b;
+  --color-accent-hover: #d97706;
+  --color-label: #9ca3af;
+}
+
+/* Thin scrollbar for sidebar */
+.sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: #3f3f5c;
+  border-radius: 2px;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: #5a5a7a;
+}
