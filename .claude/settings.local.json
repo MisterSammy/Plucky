@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run build:*)",
+      "Bash(find:*)",
+      "Bash(sqlite3:*)",
+      "Bash(xargs:*)",
+      "Bash(cat:*)"
     ]
   }
 }

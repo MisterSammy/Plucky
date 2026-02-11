@@ -2,6 +2,20 @@ export type NoteName = 'C' | 'C#' | 'D' | 'D#' | 'E' | 'F' | 'F#' | 'G' | 'G#' |
 
 export type NoteWithOctave = `${NoteName}${number}`;
 
+export type Instrument = 'guitar' | 'piano';
+
+export interface PianoKeyPosition {
+  midi: number;
+  note: NoteName;
+  noteWithOctave: NoteWithOctave;
+  frequency: number;
+  interval: string;
+  degree: number;
+  isRoot: boolean;
+  isBlackKey: boolean;
+  octave: number;
+}
+
 export interface FretPosition {
   string: number;
   fret: number;

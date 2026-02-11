@@ -3,14 +3,18 @@ import { useFretboardPositions } from '@/hooks/useFretboardPositions';
 import { SCALE_BY_ID } from '@/data/scales';
 
 export default function ContentTitleBar() {
-  const { selectedRoot, selectedScaleId, selectedPosition, setSidebarOpen } = useScaleStore();
+  const { selectedRoot, selectedScaleId, selectedPosition, setSidebarOpen, instrument } = useScaleStore();
   const { availablePositions } = useFretboardPositions();
   const scale = SCALE_BY_ID[selectedScaleId];
 
-  const posLabel =
-    selectedPosition != null && availablePositions[selectedPosition]
-      ? `Position ${availablePositions[selectedPosition].label} (Frets ${availablePositions[selectedPosition].startFret}–${availablePositions[selectedPosition].endFret})`
-      : 'All positions';
+  let posLabel: string;
+  if (instrument === 'piano') {
+    posLabel = 'Piano';
+  } else if (selectedPosition != null && availablePositions[selectedPosition]) {
+    posLabel = `Position ${availablePositions[selectedPosition].label} (Frets ${availablePositions[selectedPosition].startFret}–${availablePositions[selectedPosition].endFret})`;
+  } else {
+    posLabel = 'All positions';
+  }
 
   return (
     <div className="flex items-center gap-3 px-6 py-3 border-b border-gray-800">

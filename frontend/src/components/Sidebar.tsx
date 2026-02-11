@@ -6,9 +6,11 @@ import TuningSelector from './TuningSelector';
 import DisplayOptions from './DisplayOptions';
 import PositionSelector from './PositionSelector';
 import CustomTuningEditor from './CustomTuningEditor';
+import InstrumentSwitcher from './InstrumentSwitcher';
+import OctaveRangeSelector from './OctaveRangeSelector';
 
 export default function Sidebar() {
-  const { selectedTuningId, sidebarOpen, setSidebarOpen } = useScaleStore();
+  const { selectedTuningId, sidebarOpen, setSidebarOpen, instrument } = useScaleStore();
 
   return (
     <>
@@ -33,13 +35,19 @@ export default function Sidebar() {
 
         {/* Scrollable controls */}
         <div className="flex-1 overflow-y-auto sidebar-scroll px-5 pb-6 space-y-5">
+          <InstrumentSwitcher />
           <GenreFilter />
           <RootNoteSelector />
           <ScaleSelector />
-          <TuningSelector />
-          {selectedTuningId === 'custom' && <CustomTuningEditor />}
+          {instrument === 'guitar' && (
+            <>
+              <TuningSelector />
+              {selectedTuningId === 'custom' && <CustomTuningEditor />}
+            </>
+          )}
+          {instrument === 'piano' && <OctaveRangeSelector />}
           <DisplayOptions />
-          <PositionSelector />
+          {instrument === 'guitar' && <PositionSelector />}
         </div>
       </aside>
     </>

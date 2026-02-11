@@ -2,10 +2,11 @@ import { Scale, Note } from 'tonal';
 import { useAudioStore } from '@/stores/audioStore';
 import { useScaleStore } from '@/stores/scaleStore';
 import { useFretboardPositions } from '@/hooks/useFretboardPositions';
+import { usePianoPositions } from '@/hooks/usePianoPositions';
 import { SCALE_BY_ID } from '@/data/scales';
-import type { FretPosition } from '@/types';
+import type { FretPosition, PianoKeyPosition } from '@/types';
 
-function buildNotesFromPositions(positions: FretPosition[]): string[] {
+function buildNotesFromFretPositions(positions: FretPosition[]): string[] {
   // Deduplicate by MIDI value (same pitch on different strings)
   const seen = new Set<number>();
   const unique: FretPosition[] = [];
@@ -24,6 +25,19 @@ function buildNotesFromPositions(positions: FretPosition[]): string[] {
   const startIdx = rootIdx >= 0 ? rootIdx : 0;
 
   const ascending = unique.slice(startIdx);
+  const descending = [...ascending].reverse().slice(1);
+
+  return [...ascending, ...descending].map(p => p.noteWithOctave);
+}
+
+function buildNotesFromPianoPositions(positions: PianoKeyPosition[]): string[] {
+  const sorted = [...positions].sort((a, b) => a.midi - b.midi);
+  if (sorted.length === 0) return [];
+
+  const rootIdx = sorted.findIndex(p => p.isRoot);
+  const startIdx = rootIdx >= 0 ? rootIdx : 0;
+
+  const ascending = sorted.slice(startIdx);
   const descending = [...ascending].reverse().slice(1);
 
   return [...ascending, ...descending].map(p => p.noteWithOctave);
@@ -50,8 +64,9 @@ function buildDefaultNotes(selectedRoot: string, scaleTonalName: string): string
 
 export default function PlayScaleButton() {
   const { isPlaying, playScale, stop } = useAudioStore();
-  const { selectedRoot, selectedScaleId } = useScaleStore();
+  const { selectedRoot, selectedScaleId, instrument } = useScaleStore();
   const { filteredPositions, activePositionRange } = useFretboardPositions();
+  const { positions: pianoPositions } = usePianoPositions();
 
   const handleClick = async () => {
     if (isPlaying) {
@@ -64,8 +79,10 @@ export default function PlayScaleButton() {
 
     let notes: string[];
 
-    if (activePositionRange && filteredPositions.length > 0) {
-      notes = buildNotesFromPositions(filteredPositions);
+    if (instrument === 'piano') {
+      notes = buildNotesFromPianoPositions(pianoPositions);
+    } else if (activePositionRange && filteredPositions.length > 0) {
+      notes = buildNotesFromFretPositions(filteredPositions);
     } else {
       notes = buildDefaultNotes(selectedRoot, scale.tonalName);
     }

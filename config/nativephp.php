@@ -154,7 +154,7 @@ return [
      * Define your own scripts to run before and after the build process.
      */
     'prebuild' => [
-        'cd frontend && npm install && npm run build',
+        'cd frontend && npm install && npm run build && cd ..',
     ],
 
     'postbuild' => [

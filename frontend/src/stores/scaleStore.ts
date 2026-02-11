@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { NoteName, TuningPreset } from '@/types';
+import type { Instrument, NoteName, TuningPreset } from '@/types';
 
 interface ScaleStore {
   selectedRoot: NoteName;
@@ -12,6 +12,9 @@ interface ScaleStore {
   theme: 'light' | 'dark' | 'system';
   selectedPosition: number | null;
   sidebarOpen: boolean;
+  instrument: Instrument | null;
+  pianoStartOctave: number;
+  pianoEndOctave: number;
 
   setRoot: (root: NoteName) => void;
   setScale: (scaleId: string) => void;
@@ -23,6 +26,8 @@ interface ScaleStore {
   setTheme: (theme: 'light' | 'dark' | 'system') => void;
   setPosition: (index: number | null) => void;
   setSidebarOpen: (open: boolean) => void;
+  setInstrument: (instrument: Instrument) => void;
+  setPianoOctaveRange: (start: number, end: number) => void;
 }
 
 export const useScaleStore = create<ScaleStore>((set) => ({
@@ -36,6 +41,9 @@ export const useScaleStore = create<ScaleStore>((set) => ({
   theme: (localStorage.getItem('plucky-theme') as 'light' | 'dark' | 'system') || 'dark',
   selectedPosition: null,
   sidebarOpen: false,
+  instrument: (localStorage.getItem('plucky-instrument') as Instrument | null),
+  pianoStartOctave: 3,
+  pianoEndOctave: 6,
 
   setRoot: (root) => set({ selectedRoot: root, selectedPosition: null }),
   setScale: (scaleId) => set({ selectedScaleId: scaleId, selectedPosition: null }),
@@ -50,4 +58,9 @@ export const useScaleStore = create<ScaleStore>((set) => ({
   },
   setPosition: (index) => set({ selectedPosition: index }),
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
+  setInstrument: (instrument) => {
+    localStorage.setItem('plucky-instrument', instrument);
+    set({ instrument });
+  },
+  setPianoOctaveRange: (start, end) => set({ pianoStartOctave: start, pianoEndOctave: end }),
 }));
