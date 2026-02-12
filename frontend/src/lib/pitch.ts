@@ -15,6 +15,7 @@ export class PitchDetectorEngine {
   private audioContext: AudioContext | null = null;
   private analyser: AnalyserNode | null = null;
   private source: MediaStreamAudioSourceNode | null = null;
+  private splitter: ChannelSplitterNode | null = null;
   private monitorGain: GainNode | null = null;
   private stream: MediaStream | null = null;
   private rafId: number | null = null;
@@ -45,17 +46,30 @@ export class PitchDetectorEngine {
     this.audioContext = new AudioContext({ sampleRate: 44100, latencyHint: 'interactive' });
     this.source = this.audioContext.createMediaStreamSource(this.stream);
 
-    // Pitch detection path: source → analyser
+    // Pitch detection path
     this.analyser = this.audioContext.createAnalyser();
     this.analyser.fftSize = FFT_SIZE;
     this.analyser.smoothingTimeConstant = smoothing;
-    this.source.connect(this.analyser);
 
-    // Monitor path: source → monitorGain → destination (muted by default)
+    // Monitor path (muted by default)
     this.monitorGain = this.audioContext.createGain();
     this.monitorGain.gain.value = 0.0;
-    this.source.connect(this.monitorGain);
     this.monitorGain.connect(this.audioContext.destination);
+
+    const selectedChannel = config?.selectedChannel ?? null;
+    const streamChannelCount = this.stream.getAudioTracks()[0]?.getSettings().channelCount ?? 1;
+
+    if (selectedChannel !== null && selectedChannel < streamChannelCount) {
+      // Route only the chosen channel through a splitter
+      this.splitter = this.audioContext.createChannelSplitter(streamChannelCount);
+      this.source.connect(this.splitter);
+      this.splitter.connect(this.analyser, selectedChannel, 0);
+      this.splitter.connect(this.monitorGain, selectedChannel, 0);
+    } else {
+      // All channels mixed (default)
+      this.source.connect(this.analyser);
+      this.source.connect(this.monitorGain);
+    }
 
     const buffer = new Float32Array(FFT_SIZE);
     const detector = PitchDetector.forFloat32Array(FFT_SIZE);
@@ -89,8 +103,10 @@ export class PitchDetectorEngine {
       this.rafId = null;
     }
     this.source?.disconnect();
+    this.splitter?.disconnect();
     this.monitorGain?.disconnect();
     this.source = null;
+    this.splitter = null;
     this.monitorGain = null;
     if (this.stream) {
       this.stream.getTracks().forEach((track) => track.stop());

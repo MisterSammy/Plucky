@@ -5,14 +5,19 @@ import type { Preferences } from '@/types';
 
 type PreferencesWithBpm = Preferences & { playbackBpm: number };
 
-const PREFERENCE_KEYS: readonly string[] = Object.keys(DEFAULTS);
+// Lazy — computed on first use to avoid circular-init TDZ with scaleStore
+let _preferenceKeys: string[] | null = null;
+function preferenceKeys(): readonly string[] {
+    if (!_preferenceKeys) _preferenceKeys = Object.keys(DEFAULTS);
+    return _preferenceKeys;
+}
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
 function getPreferences(): PreferencesWithBpm {
     const s = useScaleStore.getState();
     const prefs: Record<string, unknown> = {};
-    for (const key of PREFERENCE_KEYS) {
+    for (const key of preferenceKeys()) {
         prefs[key] = s[key as keyof typeof s];
     }
     return {
@@ -58,7 +63,7 @@ export function setHydrating(value: boolean): void {
 
 export function initPreferenceBridge(): void {
     // Subscribe to scaleStore changes (skip non-preference keys like sidebarOpen, customTuning)
-    const prefKeySet = new Set(PREFERENCE_KEYS);
+    const prefKeySet = new Set(preferenceKeys());
     let prevSnapshot: Record<string, unknown> = {};
 
     useScaleStore.subscribe((state) => {

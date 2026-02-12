@@ -24,9 +24,19 @@ php artisan native:build       # Build native desktop app (runs frontend build a
 
 ### Code Quality
 ```bash
-cd frontend && npm run lint    # ESLint (TypeScript/React)
+cd frontend && npm run build   # Full TypeScript check (tsc -b) + production build — run this to catch type errors that lint misses
+cd frontend && npm run lint    # ESLint (TypeScript/React) — does NOT catch all TypeScript errors
 vendor/bin/pint                # Laravel Pint (PHP formatter)
 ```
+
+### Database
+```bash
+php artisan migrate                              # Run pending migrations (default SQLite)
+DB_DATABASE=database/nativephp.sqlite php artisan migrate        # Run against the NativePHP desktop database
+DB_DATABASE=database/nativephp.sqlite php artisan migrate:status # Check migration status on nativephp
+```
+
+The NativePHP desktop app uses `database/nativephp.sqlite` via a runtime-only `nativephp` connection. The `--database=nativephp` flag won't work outside Electron — use the `DB_DATABASE` env override instead. **After creating migrations, always run them against both databases before asking the user to verify in the desktop app.**
 
 ### Testing
 ```bash
@@ -34,6 +44,15 @@ composer test                  # PHPUnit (php artisan test)
 ```
 
 Frontend has no test framework configured yet.
+
+## Verification Checklist
+
+After making changes, run the appropriate checks before handing off to the user:
+
+1. **Frontend TypeScript/build**: `cd frontend && npm run build` (catches type errors that lint misses)
+2. **PHP formatting**: `vendor/bin/pint` (if PHP files were touched)
+3. **Migrations**: `php artisan migrate && DB_DATABASE=database/nativephp.sqlite php artisan migrate` (if migrations were added/modified)
+4. **Tests**: `composer test` (if backend logic was changed)
 
 ## Architecture
 

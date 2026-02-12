@@ -22,6 +22,23 @@ export function onDeviceChange(cb: () => void): () => void {
     return () => navigator.mediaDevices.removeEventListener('devicechange', cb);
 }
 
+export async function getDeviceChannelCount(deviceId: string): Promise<number> {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+                deviceId: { exact: deviceId },
+                channelCount: { ideal: 32 },
+            },
+        });
+        const track = stream.getAudioTracks()[0];
+        const count = track.getSettings().channelCount ?? 1;
+        track.stop();
+        return count;
+    } catch {
+        return 1;
+    }
+}
+
 export function buildAudioConstraints(config: AudioInputConfig): MediaStreamConstraints {
     const audio: MediaTrackConstraints = {
         echoCancellation: config.echoCancellation,
@@ -30,6 +47,9 @@ export function buildAudioConstraints(config: AudioInputConfig): MediaStreamCons
     };
     if (config.selectedDeviceId) {
         audio.deviceId = { exact: config.selectedDeviceId };
+    }
+    if (config.selectedChannel !== null) {
+        audio.channelCount = { ideal: 32 };
     }
     return { audio };
 }

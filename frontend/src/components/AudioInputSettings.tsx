@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useScaleStore } from '@/stores/scaleStore';
-import { getAudioInputDevices, onDeviceChange } from '@/lib/audioDevices';
+import { getAudioInputDevices, getDeviceChannelCount, onDeviceChange } from '@/lib/audioDevices';
 import type { AudioDevice } from '@/lib/audioDevices';
 
 function useAudioDevices() {
@@ -28,6 +28,19 @@ export default function AudioInputSettings() {
     const audioInput = useScaleStore((s) => s.audioInput);
     const setAudioInput = useScaleStore((s) => s.setAudioInput);
     const devices = useAudioDevices();
+    const [channelCount, setChannelCount] = useState(1);
+
+    useEffect(() => {
+        if (!audioInput.selectedDeviceId) {
+            setChannelCount(1);
+            return;
+        }
+        let cancelled = false;
+        getDeviceChannelCount(audioInput.selectedDeviceId).then((count) => {
+            if (!cancelled) setChannelCount(count);
+        });
+        return () => { cancelled = true; };
+    }, [audioInput.selectedDeviceId]);
 
     return (
         <div className="space-y-6">
@@ -44,7 +57,7 @@ export default function AudioInputSettings() {
                 <label className="block text-sm font-medium text-gray-300">Input Device</label>
                 <select
                     value={audioInput.selectedDeviceId ?? ''}
-                    onChange={(e) => setAudioInput({ selectedDeviceId: e.target.value || null })}
+                    onChange={(e) => setAudioInput({ selectedDeviceId: e.target.value || null, selectedChannel: null })}
                     className="w-full bg-surface border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accent"
                 >
                     <option value="">Default</option>
@@ -58,6 +71,26 @@ export default function AudioInputSettings() {
                     Select your audio interface or microphone. If labels show as "Microphone 1", grant mic permission first.
                 </p>
             </div>
+
+            {/* Channel selector — only for multi-channel devices */}
+            {channelCount > 1 && (
+                <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-300">Input Channel</label>
+                    <select
+                        value={audioInput.selectedChannel === null ? '' : String(audioInput.selectedChannel)}
+                        onChange={(e) => setAudioInput({ selectedChannel: e.target.value === '' ? null : Number(e.target.value) })}
+                        className="w-full bg-surface border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accent"
+                    >
+                        <option value="">All (mixed)</option>
+                        {Array.from({ length: channelCount }, (_, i) => (
+                            <option key={i} value={String(i)}>Input {i + 1}</option>
+                        ))}
+                    </select>
+                    <p className="text-xs text-gray-500">
+                        Your device has {channelCount} input channels. Select a specific channel or mix all together.
+                    </p>
+                </div>
+            )}
 
             {/* Processing toggles */}
             <div className="space-y-3">

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { setHydrating } from '@/stores/preferenceBridge';
-import type { AudioInputConfig, Preferences, TuningPreset } from '@/types';
+import type { AudioInputConfig, Instrument, Mode, NoteRangeMode, NoteName, Preferences, PracticeDirection, TuningPreset } from '@/types';
 
 export const DEFAULTS: Preferences = {
     mode: 'scales',
@@ -22,6 +22,7 @@ export const DEFAULTS: Preferences = {
     practiceOctaves: 1,
     audioInput: {
         selectedDeviceId: null,
+        selectedChannel: null,
         echoCancellation: true,
         noiseSuppression: true,
         autoGainControl: true,

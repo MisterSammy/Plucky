@@ -152,6 +152,7 @@ export interface Preferences {
 
 export interface AudioInputConfig {
     selectedDeviceId: string | null;
+    selectedChannel: number | null;
     echoCancellation: boolean;
     noiseSuppression: boolean;
     autoGainControl: boolean;
