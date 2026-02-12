@@ -119,3 +119,42 @@ export interface AudioPlaybackState {
   currentNoteIndex: number | null;
   synth: unknown;
 }
+
+export interface PitchData {
+  frequency: number;
+  clarity: number;
+  note: NoteName;
+  noteWithOctave: NoteWithOctave;
+  midi: number;
+  centOffset: number;
+}
+
+export interface Preferences {
+    mode: Mode;
+    selectedRoot: NoteName;
+    selectedScaleId: string;
+    selectedChordId: string;
+    selectedTuningId: string;
+    selectedGenreId: string | null;
+    showAllNotes: boolean;
+    highlightRoot: boolean;
+    showFingers: boolean;
+    noteRangeMode: NoteRangeMode;
+    practiceDirection: PracticeDirection;
+    selectedPosition: number | null;
+    instrument: Instrument | null;
+    theme: 'light' | 'dark' | 'system';
+    pianoStartOctave: number;
+    pianoEndOctave: number;
+    practiceOctaves: number;
+    audioInput: AudioInputConfig;
+}
+
+export interface AudioInputConfig {
+    selectedDeviceId: string | null;
+    echoCancellation: boolean;
+    noiseSuppression: boolean;
+    autoGainControl: boolean;
+    minClarity: number;
+    smoothing: number;
+}

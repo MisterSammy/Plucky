@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import { usePracticeStore } from '@/stores/practiceStore';
 import { useScaleStore } from '@/stores/scaleStore';
+import { useToastStore } from '@/stores/toastStore';
 import { playSuccessChime } from '@/lib/audio';
 import type { NoteName, PracticeDirection } from '@/types';
 
@@ -118,7 +119,14 @@ export function useScalePractice(
                 }, {
                     preserveState: true,
                     preserveScroll: true,
-                    onError: () => {},
+                    onError: () => {
+                        useToastStore.getState().addToast({
+                            type: 'error',
+                            title: 'Session not saved',
+                            message: 'Your practice session could not be recorded.',
+                            dismissAfterMs: 5000,
+                        });
+                    },
                 });
             }
         }

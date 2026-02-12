@@ -4,6 +4,7 @@ use App\Http\Controllers\AwardsController;
 use App\Http\Controllers\LearningTrackController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\PracticeController;
+use App\Http\Controllers\SettingsController;
 use Illuminate\Support\Facades\Route;
 
 // Player management
@@ -18,7 +19,8 @@ Route::get('/', [PracticeController::class, 'index'])->name('practice');
 // Session recording
 Route::post('/sessions', [PracticeController::class, 'store'])->name('sessions.store');
 
-// Settings
+// Settings & Preferences
+Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
 Route::patch('/settings', [PracticeController::class, 'updateSettings'])->name('settings.update');
 Route::put('/preferences', [PracticeController::class, 'savePreferences'])->name('preferences.save');
 

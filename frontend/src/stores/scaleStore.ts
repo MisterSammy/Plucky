@@ -1,28 +1,8 @@
 import { create } from 'zustand';
 import { setHydrating } from '@/stores/preferenceBridge';
-import type { Instrument, Mode, NoteRangeMode, PracticeDirection, NoteName, TuningPreset } from '@/types';
+import type { AudioInputConfig, Preferences, TuningPreset } from '@/types';
 
-interface Preferences {
-    mode: Mode;
-    selectedRoot: NoteName;
-    selectedScaleId: string;
-    selectedChordId: string;
-    selectedTuningId: string;
-    selectedGenreId: string | null;
-    showAllNotes: boolean;
-    highlightRoot: boolean;
-    showFingers: boolean;
-    noteRangeMode: NoteRangeMode;
-    practiceDirection: PracticeDirection;
-    selectedPosition: number | null;
-    instrument: Instrument | null;
-    theme: 'light' | 'dark' | 'system';
-    pianoStartOctave: number;
-    pianoEndOctave: number;
-    practiceOctaves: number;
-}
-
-const DEFAULTS: Preferences = {
+export const DEFAULTS: Preferences = {
     mode: 'scales',
     selectedRoot: 'C',
     selectedScaleId: 'major',
@@ -40,6 +20,14 @@ const DEFAULTS: Preferences = {
     pianoStartOctave: 3,
     pianoEndOctave: 6,
     practiceOctaves: 1,
+    audioInput: {
+        selectedDeviceId: null,
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+        minClarity: 0.9,
+        smoothing: 0.8,
+    },
 };
 
 interface ScaleStore extends Preferences {
@@ -64,6 +52,7 @@ interface ScaleStore extends Preferences {
     setInstrument: (instrument: Instrument) => void;
     setPianoOctaveRange: (start: number, end: number) => void;
     setPracticeOctaves: (n: number) => void;
+    setAudioInput: (config: Partial<AudioInputConfig>) => void;
     hydrateFromServer: (prefs: Partial<Preferences>) => void;
     resetAll: () => void;
 }
@@ -91,6 +80,9 @@ export const useScaleStore = create<ScaleStore>((set) => ({
     setInstrument: (instrument) => set({ instrument }),
     setPianoOctaveRange: (start, end) => set({ pianoStartOctave: start, pianoEndOctave: end }),
     setPracticeOctaves: (n) => set({ practiceOctaves: n }),
+    setAudioInput: (config) => set((state) => ({
+        audioInput: { ...state.audioInput, ...config },
+    })),
 
     hydrateFromServer: (prefs) => {
         setHydrating(true);

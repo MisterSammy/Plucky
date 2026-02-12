@@ -1,59 +1,24 @@
-import { useScaleStore } from '@/stores/scaleStore';
+import { useScaleStore, DEFAULTS } from '@/stores/scaleStore';
 import { useAudioStore } from '@/stores/audioStore';
-import type { Mode, NoteName, NoteRangeMode, PracticeDirection, Instrument } from '@/types';
+import { useToastStore } from '@/stores/toastStore';
+import type { Preferences } from '@/types';
 
-interface Preferences {
-    mode: Mode;
-    selectedRoot: NoteName;
-    selectedScaleId: string;
-    selectedChordId: string;
-    selectedTuningId: string;
-    selectedGenreId: string | null;
-    showAllNotes: boolean;
-    highlightRoot: boolean;
-    showFingers: boolean;
-    noteRangeMode: NoteRangeMode;
-    practiceDirection: PracticeDirection;
-    selectedPosition: number | null;
-    instrument: Instrument | null;
-    theme: 'light' | 'dark' | 'system';
-    pianoStartOctave: number;
-    pianoEndOctave: number;
-    practiceOctaves: number;
-    playbackBpm: number;
-}
+type PreferencesWithBpm = Preferences & { playbackBpm: number };
 
-const PREFERENCE_KEYS: readonly string[] = [
-    'mode', 'selectedRoot', 'selectedScaleId', 'selectedChordId',
-    'selectedTuningId', 'selectedGenreId', 'showAllNotes', 'highlightRoot',
-    'showFingers', 'noteRangeMode', 'practiceDirection', 'selectedPosition',
-    'instrument', 'theme', 'pianoStartOctave', 'pianoEndOctave', 'practiceOctaves',
-];
+const PREFERENCE_KEYS: readonly string[] = Object.keys(DEFAULTS);
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
-function getPreferences(): Preferences {
+function getPreferences(): PreferencesWithBpm {
     const s = useScaleStore.getState();
+    const prefs: Record<string, unknown> = {};
+    for (const key of PREFERENCE_KEYS) {
+        prefs[key] = s[key as keyof typeof s];
+    }
     return {
-        mode: s.mode,
-        selectedRoot: s.selectedRoot,
-        selectedScaleId: s.selectedScaleId,
-        selectedChordId: s.selectedChordId,
-        selectedTuningId: s.selectedTuningId,
-        selectedGenreId: s.selectedGenreId,
-        showAllNotes: s.showAllNotes,
-        highlightRoot: s.highlightRoot,
-        showFingers: s.showFingers,
-        noteRangeMode: s.noteRangeMode,
-        practiceDirection: s.practiceDirection,
-        selectedPosition: s.selectedPosition,
-        instrument: s.instrument,
-        theme: s.theme,
-        pianoStartOctave: s.pianoStartOctave,
-        pianoEndOctave: s.pianoEndOctave,
-        practiceOctaves: s.practiceOctaves,
+        ...prefs,
         playbackBpm: useAudioStore.getState().playbackBpm,
-    };
+    } as PreferencesWithBpm;
 }
 
 function debouncedSave() {
@@ -72,7 +37,15 @@ function debouncedSave() {
                 ...(csrfToken ? { 'X-XSRF-TOKEN': csrfToken } : {}),
             },
             body: JSON.stringify({ preferences }),
-        }).catch((err) => console.warn('Preference save failed:', err));
+        }).catch((err) => {
+            console.warn('Preference save failed:', err);
+            useToastStore.getState().addToast({
+                type: 'error',
+                title: 'Settings not saved',
+                message: 'Your preferences could not be saved. They will reset on next launch.',
+                dismissAfterMs: 5000,
+            });
+        });
     }, 1000);
 }
 

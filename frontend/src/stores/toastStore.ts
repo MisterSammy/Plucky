@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 export interface Toast {
     id: string;
-    type: 'achievement' | 'fastest' | 'milestone';
+    type: 'achievement' | 'fastest' | 'milestone' | 'error';
     title: string;
     message: string;
     tier?: string;

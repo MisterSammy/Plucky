@@ -24,11 +24,12 @@ function ToastItem({ toast }: { toast: Toast }) {
     }, [toast.id, toast.dismissAfterMs, removeToast]);
 
     const tierColor = toast.tier ? TIER_COLORS[toast.tier] : undefined;
+    const borderColor = tierColor ?? (toast.type === 'error' ? '#ef4444' : undefined);
 
     return (
         <div
             className={`toast-item ${exiting ? 'toast-exit' : 'toast-enter'}`}
-            style={tierColor ? { borderLeftColor: tierColor } : undefined}
+            style={borderColor ? { borderLeftColor: borderColor } : undefined}
         >
             <div className="flex items-start gap-3">
                 {toast.tier && (
@@ -40,8 +41,10 @@ function ToastItem({ toast }: { toast: Toast }) {
                     </div>
                 )}
                 {!toast.tier && (
-                    <div className="w-8 h-8 rounded-full bg-accent/20 text-accent flex items-center justify-center text-sm shrink-0">
-                        {toast.type === 'fastest' ? '\u26A1' : toast.type === 'milestone' ? '\u2B50' : '\u2714'}
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm shrink-0 ${
+                        toast.type === 'error' ? 'bg-red-500/20 text-red-400' : 'bg-accent/20 text-accent'
+                    }`}>
+                        {toast.type === 'error' ? '\u2716' : toast.type === 'fastest' ? '\u26A1' : toast.type === 'milestone' ? '\u2B50' : '\u2714'}
                     </div>
                 )}
                 <div className="min-w-0">
