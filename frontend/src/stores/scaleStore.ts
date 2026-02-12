@@ -19,6 +19,7 @@ interface Preferences {
     theme: 'light' | 'dark' | 'system';
     pianoStartOctave: number;
     pianoEndOctave: number;
+    practiceOctaves: number;
 }
 
 const DEFAULTS: Preferences = {
@@ -38,6 +39,7 @@ const DEFAULTS: Preferences = {
     theme: 'dark',
     pianoStartOctave: 3,
     pianoEndOctave: 6,
+    practiceOctaves: 1,
 };
 
 interface ScaleStore extends Preferences {
@@ -61,6 +63,7 @@ interface ScaleStore extends Preferences {
     setSidebarOpen: (open: boolean) => void;
     setInstrument: (instrument: Instrument) => void;
     setPianoOctaveRange: (start: number, end: number) => void;
+    setPracticeOctaves: (n: number) => void;
     hydrateFromServer: (prefs: Partial<Preferences>) => void;
     resetAll: () => void;
 }
@@ -87,6 +90,7 @@ export const useScaleStore = create<ScaleStore>((set) => ({
     setSidebarOpen: (open) => set({ sidebarOpen: open }),
     setInstrument: (instrument) => set({ instrument }),
     setPianoOctaveRange: (start, end) => set({ pianoStartOctave: start, pianoEndOctave: end }),
+    setPracticeOctaves: (n) => set({ practiceOctaves: n }),
 
     hydrateFromServer: (prefs) => {
         setHydrating(true);

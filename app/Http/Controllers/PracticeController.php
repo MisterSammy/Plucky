@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Player;
 use App\Models\PlayerTrackProgress;
+use App\Services\AchievementService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -37,7 +38,7 @@ class PracticeController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, AchievementService $achievementService)
     {
         $validated = $request->validate([
             'scale_id' => 'required|string|max:50',
@@ -49,6 +50,8 @@ class PracticeController extends Controller
             'total_notes' => 'required|integer|min:1',
             'notes_hit' => 'required|integer|min:0',
             'track_scale_id' => 'nullable|integer|exists:track_scales,id',
+            'genre_id' => 'nullable|string|max:30',
+            'octaves' => 'nullable|integer|min:1|max:4',
         ]);
 
         $player = Player::where('is_active', true)->first();
@@ -57,11 +60,16 @@ class PracticeController extends Controller
             return redirect()->route('practice');
         }
 
+        // Validate genre_id against config if provided
+        if (! empty($validated['genre_id']) && ! config("genres.{$validated['genre_id']}")) {
+            $validated['genre_id'] = null;
+        }
+
         $accuracy = ($validated['total_notes'] > 0)
             ? round(($validated['notes_hit'] / $validated['total_notes']) * 100, 2)
             : 0;
 
-        $player->practiceSessions()->create([
+        $session = $player->practiceSessions()->create([
             'scale_id' => $validated['scale_id'],
             'root_note' => $validated['root_note'],
             'tuning_id' => $validated['tuning_id'],
@@ -72,6 +80,8 @@ class PracticeController extends Controller
             'notes_hit' => $validated['notes_hit'],
             'accuracy' => $accuracy,
             'practice_date' => now()->toDateString(),
+            'genre_id' => $validated['genre_id'] ?? null,
+            'octaves' => $validated['octaves'] ?? 1,
         ]);
 
         // Update learning track progress if applicable
@@ -85,6 +95,12 @@ class PracticeController extends Controller
             if ($validated['duration_ms'] && (! $progress->best_time_ms || $validated['duration_ms'] < $progress->best_time_ms)) {
                 $progress->update(['best_time_ms' => $validated['duration_ms']]);
             }
+        }
+
+        // Evaluate achievements
+        $newAchievements = $achievementService->evaluate($player, $session);
+        if (! empty($newAchievements)) {
+            session()->flash('achievements', $newAchievements);
         }
 
         return redirect()->route('practice');

@@ -13,7 +13,8 @@ interface PositionWithDegreeAndNote {
 
 function buildExpectedNotes(
     positions: PositionWithDegreeAndNote[],
-    direction: PracticeDirection
+    direction: PracticeDirection,
+    octaveCount: number
 ): { notes: NoteName[]; displayNotes: string[]; degrees: number[] } {
     const notesByDegree = new Map<number, { note: NoteName; displayNote: string }>();
     for (const p of positions) {
@@ -27,14 +28,26 @@ function buildExpectedNotes(
     const sorted = [...notesByDegree.entries()].sort(([a], [b]) => a - b);
     const rootEntry = sorted.length > 0 ? sorted[0][1] : undefined;
 
-    let notes = sorted.map(([, v]) => v.note);
-    let displayNotes = sorted.map(([, v]) => v.displayNote);
-    let degrees = sorted.map(([deg]) => deg);
+    // Build one octave (without closing root)
+    const oneOctNotes = sorted.map(([, v]) => v.note);
+    const oneOctDisplay = sorted.map(([, v]) => v.displayNote);
+    const oneOctDegrees = sorted.map(([deg]) => deg);
+
+    // Repeat for multi-octave: each octave repeats the full sequence
+    let notes: NoteName[] = [];
+    let displayNotes: string[] = [];
+    let degrees: number[] = [];
+
+    for (let oct = 0; oct < octaveCount; oct++) {
+        notes = notes.concat(oneOctNotes);
+        displayNotes = displayNotes.concat(oneOctDisplay);
+        degrees = degrees.concat(oneOctDegrees);
+    }
 
     if (direction === 'descending') {
-        notes = notes.reverse();
-        displayNotes = displayNotes.reverse();
-        degrees = degrees.reverse();
+        notes.reverse();
+        displayNotes.reverse();
+        degrees.reverse();
     }
 
     // Add root for a complete-sounding sequence:
@@ -61,6 +74,7 @@ export function useScalePractice(
     currentNote: NoteName | null
 ): Set<number> {
     const practiceDirection = useScaleStore(s => s.practiceDirection);
+    const practiceOctaves = useScaleStore(s => s.practiceOctaves);
 
     // Initialize/reset practice when listening state or positions change
     useEffect(() => {
@@ -69,9 +83,9 @@ export function useScalePractice(
             return;
         }
 
-        const { notes, displayNotes, degrees } = buildExpectedNotes(filteredPositions, practiceDirection);
+        const { notes, displayNotes, degrees } = buildExpectedNotes(filteredPositions, practiceDirection, practiceOctaves);
         usePracticeStore.getState().startPractice(notes, degrees, displayNotes);
-    }, [isListening, filteredPositions, practiceDirection]);
+    }, [isListening, filteredPositions, practiceDirection, practiceOctaves]);
 
     // Check detected notes against expected sequence
     useEffect(() => {
@@ -87,7 +101,7 @@ export function useScalePractice(
 
                 // Save session to backend
                 const durationMs = startedAt ? Date.now() - startedAt : null;
-                const { selectedScaleId, selectedChordId, selectedRoot, selectedTuningId, instrument, mode } = useScaleStore.getState();
+                const { selectedScaleId, selectedChordId, selectedRoot, selectedTuningId, instrument, mode, selectedGenreId, practiceOctaves: octaves } = useScaleStore.getState();
 
                 router.post('/sessions', {
                     scale_id: mode === 'chords' ? selectedChordId : selectedScaleId,
@@ -98,6 +112,8 @@ export function useScalePractice(
                     duration_ms: durationMs,
                     total_notes: expectedNotes.length,
                     notes_hit: expectedNotes.length,
+                    genre_id: selectedGenreId,
+                    octaves,
                     ...(trackScaleId ? { track_scale_id: trackScaleId } : {}),
                 }, {
                     preserveState: true,

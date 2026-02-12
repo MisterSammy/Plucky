@@ -19,6 +19,8 @@ class PracticeSession extends Model
         'notes_hit',
         'accuracy',
         'practice_date',
+        'genre_id',
+        'octaves',
     ];
 
     protected $casts = [

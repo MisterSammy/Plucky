@@ -19,6 +19,7 @@ interface Preferences {
     theme: 'light' | 'dark' | 'system';
     pianoStartOctave: number;
     pianoEndOctave: number;
+    practiceOctaves: number;
     playbackBpm: number;
 }
 
@@ -26,7 +27,7 @@ const PREFERENCE_KEYS: readonly string[] = [
     'mode', 'selectedRoot', 'selectedScaleId', 'selectedChordId',
     'selectedTuningId', 'selectedGenreId', 'showAllNotes', 'highlightRoot',
     'showFingers', 'noteRangeMode', 'practiceDirection', 'selectedPosition',
-    'instrument', 'theme', 'pianoStartOctave', 'pianoEndOctave',
+    'instrument', 'theme', 'pianoStartOctave', 'pianoEndOctave', 'practiceOctaves',
 ];
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -50,6 +51,7 @@ function getPreferences(): Preferences {
         theme: s.theme,
         pianoStartOctave: s.pianoStartOctave,
         pianoEndOctave: s.pianoEndOctave,
+        practiceOctaves: s.practiceOctaves,
         playbackBpm: useAudioStore.getState().playbackBpm,
     };
 }

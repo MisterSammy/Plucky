@@ -1,5 +1,6 @@
 import PlayScaleButton from './PlayScaleButton';
 import SpeedControl from './SpeedControl';
+import OctaveSelector from './OctaveSelector';
 import MicToggle from './MicToggle';
 import PitchDisplay from './PitchDisplay';
 import PracticeProgress from './PracticeProgress';
@@ -10,6 +11,8 @@ export default function ControlsToolbar() {
       <PlayScaleButton />
       <div className="w-px h-6 bg-gray-700" />
       <SpeedControl />
+      <div className="w-px h-6 bg-gray-700" />
+      <OctaveSelector />
       <div className="w-px h-6 bg-gray-700" />
       <MicToggle />
       <PitchDisplay />

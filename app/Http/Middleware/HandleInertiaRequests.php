@@ -40,6 +40,9 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'activePlayer' => fn () => Player::where('is_active', true)->first(),
             'url' => $request->path() === '/' ? '/' : '/'.$request->path(),
+            'flash' => fn () => [
+                'achievements' => session('achievements', []),
+            ],
         ];
     }
 }

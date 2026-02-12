@@ -1,9 +1,9 @@
 <?php
 
+use App\Http\Controllers\AwardsController;
 use App\Http\Controllers\LearningTrackController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\PracticeController;
-use App\Http\Controllers\StatsController;
 use Illuminate\Support\Facades\Route;
 
 // Player management
@@ -22,8 +22,8 @@ Route::post('/sessions', [PracticeController::class, 'store'])->name('sessions.s
 Route::patch('/settings', [PracticeController::class, 'updateSettings'])->name('settings.update');
 Route::put('/preferences', [PracticeController::class, 'savePreferences'])->name('preferences.save');
 
-// Stats dashboard
-Route::get('/stats', [StatsController::class, 'index'])->name('stats');
+// Stats & Awards
+Route::get('/stats', [AwardsController::class, 'index'])->name('stats');
 
 // Learning tracks
 Route::get('/tracks', [LearningTrackController::class, 'index'])->name('tracks');

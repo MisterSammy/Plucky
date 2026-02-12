@@ -28,4 +28,9 @@ class Player extends Model
     {
         return $this->hasMany(PlayerTrackProgress::class);
     }
+
+    public function achievements(): HasMany
+    {
+        return $this->hasMany(PlayerAchievement::class);
+    }
 }
